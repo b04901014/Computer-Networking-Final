@@ -1,0 +1,93 @@
+body{
+  margin: 0;
+  height: 100vh;
+  width:100vw;
+  overflow: hidden;
+}
+.material-icons{user-select: none;}
+
+.PlayerContainer{
+  flex:1;
+  display: flex;
+  align-items: center;
+  background-color: #4a4a4a;
+  height: calc(100vh - 20px);
+  padding: 10px
+}
+.PlayerContainer>div{
+  box-shadow: 0px 0px 10px black;
+  border: 5px solid white;
+}
+.video-react .video-react-big-play-button{
+  top: 50%;
+  left: calc(50% - 1.5em);
+}
+
+.ChatRoom{
+  width: 300px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: .3s ease-in-out;
+}
+.ChatRoom div{
+  display: flex;
+}
+.HistoryMessage{
+  background-color: lightgoldenrodyellow;
+  flex: 1;
+  flex-direction: column;
+}
+.SendingPanel input{
+  margin: 0 5px;
+  height: 20px;
+  font-size: 20px;
+  width: calc(100% - 30px);
+  border: 0;
+  border-radius: 30px;
+  outline: none;
+  padding: 3px 5px;
+}
+.SendingPanel i{
+  cursor: pointer;
+  color: #119575
+}
+.SendingPanel i:hover{color: #418c9d}
+.SendingPanel{
+  min-height: 40px;
+  padding: 10px;
+  background-color: lightsalmon;
+  align-items: center;
+}
+.ToggleChatRoom{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  background-color: gray;
+  padding: 7px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 10px;
+  transition: .3s ease-in-out;
+}
+.ToggleChatRoom:hover{
+  background-color: white;
+}
+.Message{
+  flex-direction: column;
+  padding: 5px 10px;
+}
+.Message div:nth-child(1){
+  font-size: 20px;
+  background-color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px black;
+  word-break: break-word;
+}
+.Message div:nth-child(2){
+  margin-top: 5px;
+  justify-content: flex-end;
+  font-size: 14px;
+  color: gray;
+}
