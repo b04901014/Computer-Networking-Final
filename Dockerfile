@@ -71,6 +71,7 @@ RUN echo 'export LC_ALL=en_US.UTF-8' >> ~/.bashrc && \
 
 WORKDIR /root/
 
-EXPOSE 80, 8080 
+EXPOSE 8888
+EXPOSE 4444
 
 CMD ["sleep", "infinity"]
