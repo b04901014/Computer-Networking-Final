@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "hls.js": "^0.12.4",
+    "@videojs/http-streaming": "^1.10.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "0.9.5",
-    "video-react": "^0.13.7"
+    "video.js": "^7.5.4",
+    "videojs-resolution-switcher": "^0.4.2"
   },
   "devDependencies": {},
   "scripts": {

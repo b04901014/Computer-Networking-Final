@@ -1,18 +1,27 @@
 import React, { Component } from 'react';
-import { Player } from 'video-react';
-import HLSSource from './player.js';
+import VideoPlayer from './player.js'
+import "videojs-resolution-switcher/lib/videojs-resolution-switcher.js"
 
-import "../node_modules/video-react/dist/video-react.css";
+const videoJsOptions = {
+  autoplay: true,
+  controls: true,
+  liveui: true,
+  sources: [{
+    src: '/hls/stream.m3u8',
+    type: 'application/x-mpegURL'
+  }],
+  plugins: {
+    videoJsResolutionSwitcher: {
+    default: 'low',
+    dynamicLabel: true
+    }
+  }
+}
 
 class App extends Component {
   render() {
     return (
-      <Player>
-        <HLSSource
-          isVideoChild
-          src='/hls/stream.m3u8'
-        />
-      </Player>
+      <VideoPlayer { ...videoJsOptions }/>
     );
   }
 }
