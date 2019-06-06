@@ -5,12 +5,10 @@ class ChatRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      show:true,
       message:"",
       msgList: []
     }
     this.sendMsg = this.sendMsg.bind(this);
-    this.toggle = this.toggle.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -18,22 +16,20 @@ class ChatRoom extends Component {
     this.setState({message:e.target.value});
   }
   sendMsg(){
+    var socket = this.props.socket;
     if(!this.state.message) return;
+
+    var msgObj = {}
+
     var list = this.state.msgList;
     list.push({owner:'Me',content:this.state.message,date:new Date().getTime()});
     this.setState({msgList:list,message:""});
     document.querySelector(".SendingPanel input").value = "";
   }
-  toggle(){
-    this.setState({show: !this.state.show});
-  }
 
   render(){
     return(
-      <div className="ChatRoom" style={{width:this.state.show?'300px':0}}>
-        <div className="ToggleChatRoom" onClick={this.toggle}>
-          <i className="material-icons">chat</i>
-        </div>
+      <div className="ChatRoom" style={this.props.style}>
         <div className="HistoryMessage">
           {this.state.msgList.map((x,i) =>{
             return(
