@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router';
+import { Redirect, Link, Router } from 'react-router-dom';
 
 class Setting extends Component {
   constructor(props) {
@@ -43,7 +43,8 @@ class Setting extends Component {
             <input defaultValue={user.displayName} placeholder="set up the user name"/>
           </div>
           <button onClick={this.setUserdata}> Save </button>
-          <div onClick={this.logout} style={{cursor:"pointer"}}>Logout</div>
+          <div className="FunctionalText" onClick={this.logout}>Logout</div>
+          <div className="FunctionalText"><Link to="/">Back</Link></div>
         </div>
       </div>
     );

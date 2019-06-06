@@ -117,7 +117,7 @@ class Login extends Component {
           <LoginButton content={<img src="./google.png" width="30px" alt="" />} firebase={this.props.firebase} socket={this.props.socket} provider="google" update={this.UpdateState}/>
           <LoginButton content={<i className="material-icons">person</i>} firebase={this.props.firebase} socket={this.props.socket} provider={this.state.signUp?"signUp":"email"} update={this.UpdateState}/>
         </div>
-        <div style={{cursor:"pointer"}} onClick={()=>{this.setState({signUp:true});}}>Sign Up</div>
+        <div className="FunctionalText" onClick={()=>{this.setState({signUp:true});}}>Sign Up</div>
       </div>
     );
     if(this.props.user || this.state.loginResult.success) return <Redirect to="/" />

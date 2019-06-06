@@ -12,19 +12,29 @@ class ChatRoom extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentDidMount(){
+    this.props.socket.emit('chat history')
+    this.props.socket.on('chat history',(data)=>{
+      this.setState({msgList:data});
+    });
+    this.props.socket.on('chat',(data)=>{
+      var list = this.state.msgList;
+      list.push(data);
+      this.setState({msgList:list,message:""});
+      document.querySelector(".SendingPanel input").value = "";
+    });
+  }
   handleChange(e){
     this.setState({message:e.target.value});
   }
   sendMsg(){
-    var socket = this.props.socket;
+    var socket = this.props.socket,
+        user = this.props.user;
     if(!this.state.message) return;
+    if(!user){alert("Login to use this function!!!");return;}
 
-    var msgObj = {}
-
-    var list = this.state.msgList;
-    list.push({owner:'Me',content:this.state.message,date:new Date().getTime()});
-    this.setState({msgList:list,message:""});
-    document.querySelector(".SendingPanel input").value = "";
+    var msgObj = {owner:user.uid,content:this.state.message,date:new Date().getTime()};
+    socket.emit("chat",msgObj);
   }
 
   render(){
@@ -36,8 +46,7 @@ class ChatRoom extends Component {
               <div className="Message" key={i}>
                 <div>{x.content}</div>
                 <div>
-                  <span>{x.owner}</span><br></br>
-                  <span>{new Date(x.date).toLocaleDateString()} {new Date(x.date).toLocaleTimeString()}</span>
+                  <span>{x.displayName}．{new Date(x.date).toLocaleDateString()} {new Date(x.date).toLocaleTimeString()}</span>
                 </div>
               </div>
             );
