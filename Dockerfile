@@ -10,22 +10,22 @@ ENV NGINX_VERSION nginx-1.16.0
 # ----------------------------------------------------------------------------
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
-											 software-properties-common \
+                       software-properties-common \
                        vim \
                        git-core \
                        tmux \
                        libsndfile-dev \
                        libssl-dev \
                        curl \
-											 build-essential \
+                       build-essential \
                        wget \
                        zip \
                        unzip \
                        nodejs \
                        npm \
-											 ca-certificates \
+                       ca-certificates \
                        openssl \
-											 libpcre3-dev \
+                       libpcre3-dev \
                        zlib1g-dev
 
 # ----------------------------------------------------------------------------
@@ -44,9 +44,9 @@ RUN mkdir -p /tmp/build/nginx-rtmp-module && \
 RUN cd /tmp/build/nginx/${NGINX_VERSION} && \
     ./configure --with-threads \
                 --with-http_ssl_module \
-								--add-module=/tmp/build/nginx-rtmp-module/nginx-rtmp-module-master && \
-		make && make install && \
-		rm -rf /tmp/build
+                --add-module=/tmp/build/nginx-rtmp-module/nginx-rtmp-module-master && \
+    make && make install && \
+    rm -rf /tmp/build
 
 RUN wget https://raw.githubusercontent.com/JasonGiedymin/nginx-init-ubuntu/master/nginx -O /etc/init.d/nginx && \
     chmod +x /etc/init.d/nginx
