@@ -5,10 +5,11 @@ import SubApp from './SubApp.js';
 import Setting from './Setting.js';
 import Login from './Login.js';
 import io from 'socket.io-client';
-const _socket = io.connect('http://localhost:8001');
+const _socket = io.connect('http://localhost:8001', { path: '/mysocket' });
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
+/*
 const FireBaseConfig = {
   apiKey: "AIzaSyDn0nddtCgTPVmkyJ4geIqS-CGsoYnrCCk",
   authDomain: "network-final-9729e.firebaseapp.com",
@@ -17,6 +18,17 @@ const FireBaseConfig = {
   storageBucket: "network-final-9729e.appspot.com",
   messagingSenderId: "sender-id",
   appID: "app-id",
+};
+*/
+
+const FireBaseConfig = {
+  apiKey: "AIzaSyBHv4G2wIZmpBx1ml_VZ05bvWpMdCyPCnE",
+  authDomain: "testtest-67640.firebaseapp.com",
+  databaseURL: "https://testtest-67640.firebaseio.com",
+  projectId: "testtest-67640",
+  storageBucket: "testtest-67640.appspot.com",
+  messagingSenderId: "1023789121288",
+  appId: "1:1023789121288:web:0212d383afb4e577"
 };
 firebase.initializeApp(FireBaseConfig);
 
