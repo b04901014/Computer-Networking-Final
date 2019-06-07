@@ -1,12 +1,17 @@
 {
-  "name": "my-app",
+  "name": "network-final",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@videojs/http-streaming": "^1.10.3",
+    "express": "^4.17.1",
+    "firebase": "^6.1.1",
+    "firebase-admin": "^8.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.1",
     "react-scripts": "0.9.5",
+    "socket.io": "^2.2.0",
     "video.js": "^7.5.4",
     "videojs-resolution-switcher": "^0.4.2"
   },
@@ -16,5 +21,15 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/b04901014/Computer-Networking-Final.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/b04901014/Computer-Networking-Final/issues"
+  },
+  "homepage": "https://github.com/b04901014/Computer-Networking-Final#readme"
 }
