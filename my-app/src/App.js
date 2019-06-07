@@ -5,7 +5,7 @@ import SubApp from './SubApp.js';
 import Setting from './Setting.js';
 import Login from './Login.js';
 import io from 'socket.io-client';
-const _socket = io.connect('http://localhost:8000');
+const _socket = io.connect('http://localhost:8001');
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
