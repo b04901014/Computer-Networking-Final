@@ -34,6 +34,7 @@ class ChatRoom extends Component {
     if(!user){alert("Login to use this function!!!");return;}
 
     var msgObj = {owner:user.uid,content:this.state.message,date:new Date().getTime()};
+    console.log(msgObj)
     socket.emit("chat",msgObj);
   }
 

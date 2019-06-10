@@ -37,13 +37,13 @@ class App extends Component {
     super(props);
     this.state = {
       showChatRoom: true,
+      allstreams: [],
       user: null
     }
     this.ToggleChatRoom = this.ToggleChatRoom.bind(this);
   }
   componentDidMount(){
-    const auth = firebase.auth(),
-          socket = _socket;
+    const auth = firebase.auth();
     auth.onAuthStateChanged((user) => {
       if (user){
         this.setState({user: user});
@@ -52,6 +52,10 @@ class App extends Component {
       }
       else  { console.log('did not sign in'); }
     });
+    _socket.on('allstreams', (data)=>{
+      this.setState({allstreams: data});
+    });
+    _socket.emit('allstreams');
   }
 
   ToggleChatRoom(){
@@ -65,6 +69,11 @@ class App extends Component {
           <Route path="/" exact render={() => <SubApp socket={_socket} firebase={firebase} /> } /> // Original App Component
           <Route path="/setting" exact render={() => <Setting socket={_socket} firebase={firebase} user={this.state.user} /> } /> 
           <Route path="/login" render={() => <Login firebase={firebase} user={this.state.user}/>} />
+          {this.state.allstreams.map((x,i) =>{
+            return(
+              <Route path={"/" + x.slice(0, -5)} key={i} render={() => <SubApp socket={_socket} firebase={firebase} name={x} /> } />
+            );
+          })}
         </Switch>
       </Router>
     );

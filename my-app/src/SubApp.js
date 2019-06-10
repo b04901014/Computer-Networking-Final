@@ -1,29 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router,  Link } from "react-router-dom";
 import ChatRoom from './ChatRoom.js';
-import io from 'socket.io-client';
 import VideoPlayer from './player.js'
+import Token from './Token.js'
 import "videojs-resolution-switcher/lib/videojs-resolution-switcher.js"
 
-const _socket = io.connect('http://localhost:8000');
-
-const videoJsOptions = {
-  autoplay: true,
-  controls: true,
-  liveui: true,
-  sources: [{
-    src: '/hls/stream.m3u8',
-    type: 'application/x-mpegURL'
-  }],
-  plugins: {
-    videoJsResolutionSwitcher: {
-    default: 'low',
-    dynamicLabel: true
-    }
-  }
-}
-
-class App extends Component {
+class SubApp extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -31,11 +13,11 @@ class App extends Component {
       user:null
     }
     this.ToggleChatRoom = this.ToggleChatRoom.bind(this);
+    this.GetVideoOption = this.GetVideoOption.bind(this);
   }
 
   componentDidMount(){
-    const auth = this.props.firebase.auth(),
-          socket = _socket;
+    const auth = this.props.firebase.auth();
 
     // Get the user object from firebase
     auth.onAuthStateChanged((user) => {
@@ -49,6 +31,25 @@ class App extends Component {
   }
 
   ToggleChatRoom(){ this.setState({showChatRoom: !this.state.showChatRoom}); }
+
+  GetVideoOption() {
+    const videoJsOptions = {
+      autoplay: true,
+      controls: true,
+      liveui: true,
+      sources: [{
+        src: '/hls/' + this.props.name,
+        type: 'application/x-mpegURL'
+      }],
+      plugins: {
+        videoJsResolutionSwitcher: {
+        default: 'low',
+        dynamicLabel: true
+        }
+      }
+    };
+    return videoJsOptions;
+  }
 
   render() {
     return (
@@ -68,9 +69,10 @@ class App extends Component {
               <Link to='/login'>Login</Link>
             }
           </div>
+          <Token socket={this.props.socket} user={this.state.user} />
         </div>
         <div className="PlayerContainer" style={{left:this.state.showChatRoom?'0':'150px'}}>
-          <VideoPlayer { ...videoJsOptions }/>
+          <VideoPlayer { ...this.GetVideoOption() }/>
         </div>
         <ChatRoom style={{left:this.state.showChatRoom?'0':'300px'}} socket={this.props.socket} user={this.state.user}/>
       </div>
@@ -78,4 +80,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default SubApp;

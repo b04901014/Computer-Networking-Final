@@ -184,3 +184,14 @@ body{
 .Setting button:hover{
   background: #659e28;
 }
+
+.modal {
+  margin: auto;
+}
+
+.streamkey {
+  word-break: break-all;
+  font-size: 10px;
+  margin: auto;
+}
+

@@ -17,6 +17,11 @@ class Setting extends Component {
       }).then(function() {
         // Update successful.
         alert("Update success!")
+        const msgObj = {
+          uid: this.props.user.uid,
+          displayName: userName
+        };
+        this.props.socket.emit("up_usrname", msgObj);
       }).catch(function(error) {
         // An error happened.
         console.log(error);
