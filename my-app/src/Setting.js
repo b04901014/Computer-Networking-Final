@@ -21,7 +21,6 @@ class Setting extends Component {
           uid: this.props.user.uid,
           displayName: userName
         };
-        this.props.socket.emit("up_usrname", msgObj);
       }).catch(function(error) {
         // An error happened.
         console.log(error);

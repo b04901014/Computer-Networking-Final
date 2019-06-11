@@ -50,12 +50,6 @@ io.on('connection', (socket) => {
       UserKeyMap[data.uid] = streamkey;
     });
   });
-  socket.on('up_usrname', (data) => {
-    UserNameMap[data.uid] = data.displayName;  // Update user name map
-  });
-  socket.on('allstreams', () => {
-    socket.emit('allstreams', watcher.getWatched()['public/hls']); 
-  });
   socket.on('disconnect',()=>{});
 
   //Watcher Part
