@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Redirect } from 'react-router';
+import 'firebase/firestore';
 
 class LoginButton extends Component {
   constructor(props) {
@@ -42,6 +43,8 @@ class LoginButton extends Component {
       }
       else if(provider === 'email'){
         firebase.auth().signInWithEmailAndPassword(email, password).then(()=>{
+          let db = this.props.firebase.firestore();
+          db.collection('Users').add(firebase.auth().currentUser.uid);
           window.location.pathname = '/';
         }).catch(function(error) {
           // Handle Errors here.
@@ -60,6 +63,8 @@ class LoginButton extends Component {
           return;
         }
         firebase.auth().createUserWithEmailAndPassword(email, password).then(()=>{
+          let db = this.props.firebase.firestore();
+          db.collection('Users').add(firebase.auth().currentUser.uid);
           window.location.pathname = '/';
         }).catch(function(error) {
           // Handle Errors here.

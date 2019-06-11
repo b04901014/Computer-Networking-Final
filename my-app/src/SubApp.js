@@ -38,7 +38,7 @@ class SubApp extends Component {
       controls: true,
       liveui: true,
       sources: [{
-        src: '/hls/' + this.props.name,
+        src: '/hls/' + this.props.name + '.m3u8',
         type: 'application/x-mpegURL'
       }],
       plugins: {
@@ -74,7 +74,7 @@ class SubApp extends Component {
         <div className="PlayerContainer" style={{left:this.state.showChatRoom?'0':'150px'}}>
           <VideoPlayer { ...this.GetVideoOption() }/>
         </div>
-        <ChatRoom style={{left:this.state.showChatRoom?'0':'300px'}} socket={this.props.socket} user={this.state.user}/>
+        <ChatRoom style={{left:this.state.showChatRoom?'0':'300px'}} socket={this.props.socket} user={this.state.user} name={this.props.name} firebase={this.props.firebase} />
       </div>
     );
   }
