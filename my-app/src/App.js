@@ -53,6 +53,7 @@ class App extends Component {
       else  { console.log('did not sign in'); }
     });
     _socket.on('allstreams', (data)=>{
+      console.log(data);
       if(data) this.setState({allstreams: data});
     });
     _socket.emit('allstreams');

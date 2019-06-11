@@ -11,6 +11,7 @@ const io = require('socket.io')(http, {origins: "http://localhost:*", path: '/my
 const admin = require("firebase-admin");
 require("firebase/firestore");
 const crypto = require('crypto');
+const path = require('path');
 var buf = crypto.randomBytes(256);
 const key = crypto.scryptSync(buf.toString('hex'), 'salt', 24);
 const iv = crypto.scryptSync(buf.toString('hex'), 'salt', 16);
@@ -34,66 +35,12 @@ const database = admin.firestore();
 //Crypto Part
 const algorithm = 'aes-192-cbc';
 var UserKeyMap = {}; //User to Streamkey
-var UserIvMap = {}; //User to IV
-
-var UserNameMap = {}; // Maintain users displayName
-var ChatHistory = []; // Maintain chat History
-
-// When server start load chat history from firebase
-database.collection('ChatRoom').orderBy('date').get()
-.then(snapshot => {
-  var waitingQueue = [];
-  snapshot.forEach(doc => {
-    var chatData = doc.data();
-    // console.log(doc.id, '=>', chatData);
-    ChatHistory.push({...chatData,chatID:doc.id});
-    // Update users' name who has chat before
-    if(!UserNameMap[chatData.owner] && waitingQueue.indexOf(chatData.owner) === -1){
-      waitingQueue.push(chatData.owner);
-
-      admin.auth().getUser(chatData.owner)
-      .then(function(userRecord) {
-        // See the UserRecord reference doc for the contents of userRecord.
-        var userData = userRecord.toJSON();
-        console.log('Successfully fetched user data');
-        UserNameMap[userData.uid] = userData.displayName;
-      })
-      .catch(function(error) {
-        console.log('Error fetching user data:', error);
-        waitingQueue.slice(waitingQueue.indexOf(chatData.owner),1);
-      });
-    }
-
-  });
-})
-.catch(err => {
-  console.log('Error getting documents', err);
-});
-
 
 io.on('connection', (socket) => {
-  // console.log('a user connected');
-  socket.on('chat history',()=>{
-    socket.emit('chat history',ChatHistory.map(x => {return {...x,displayName:UserNameMap[x.owner]}}));
-  });
-  socket.on('chat',(data)=>{
-    // Add a new document with a generated id.
-    database.collection('ChatRoom').add(data)
-    .then(ref => {
-      console.log('Added document with ID: ', ref.id);
-
-      // OPTIMIZE: using Promise to check if user displayName exist.
-      console.log(data);
-      getUserName(data.owner).then(userName => {
-        var response = {
-          ...data,
-          displayName: userName,
-          chatID: ref.id
-        };
-        socket.emit('chat',response);  // Send data to client
-        ChatHistory.push(response);  // Record data in server
-      });
-    });
+  socket.on('chroom', (data) => {
+    socket.leave(socket.room);
+    socket.room = data;
+    socket.join(data);
   });
   socket.on('get tok',uid => {
     if(UserKeyMap[uid]){
@@ -130,13 +77,14 @@ io.on('connection', (socket) => {
 
   //Watcher Part
   watcher
-    .on('add', () => {
+    .on('add', (file) => {
       console.log('add!');
-      io.sockets.emit('allstreams', watcher.getWatched()['public/hls']);
+      let name = path.basename(file).slice(0, -5);
+      database.collection('StreamRooms').doc(name).set({}, {merge: true});
     })
     .on('unlink', () => {
       console.log('unlink!');
-      io.sockets.emit('allstreams', watcher.getWatched()['public/hls']);
+      //Do something?
     });
 });
 
@@ -149,7 +97,6 @@ app.post('/auth', function(req, res) {
   } else {
     try {
       console.log(req.body);
-      console.log(UserNameMap);
       const encrypted = req.body.token;
       const name = req.body.name;
       console.log(encrypted);
@@ -158,13 +105,21 @@ app.post('/auth', function(req, res) {
       decrypted += decipher.final('utf8');
       const uid = decrypted.substring(128);
       console.log(uid);
-      if (decrypted !== (UserKeyMap[uid] + uid) || name !== UserNameMap[uid]) {
-        console.log('Invalid Token Attempt!');
-        res.sendStatus(401);
-      } else {
-        //Allow Publish and assign a url to the user
-        res.sendStatus(200);
-      }
+      admin.auth().getUser(uid)
+        .then((userRecord) => {
+          const userData = userRecord.toJSON();
+          if (decrypted !== (UserKeyMap[uid] + uid) || name !== userData.displayName) {
+            console.log('Invalid Token Attempt!');
+            res.sendStatus(401);
+           } else {
+            //Allow Publish and assign a url to the user
+            res.sendStatus(200);
+          }
+        })
+        .catch ((err) => {
+          console.log('Invalid Token Attempt: ', err);
+          res.sendStatus(401);
+        });
     } catch (err) {
       console.log('Invalid Token Attempt: ', err);
       res.sendStatus(401);
