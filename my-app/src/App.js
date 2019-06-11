@@ -8,18 +8,7 @@ import io from 'socket.io-client';
 const _socket = io.connect('http://localhost:8001', { path: '/mysocket' });
 import firebase from 'firebase/app';
 import 'firebase/auth';
-
-/*
-const FireBaseConfig = {
-  apiKey: "AIzaSyDn0nddtCgTPVmkyJ4geIqS-CGsoYnrCCk",
-  authDomain: "network-final-9729e.firebaseapp.com",
-  databaseURL: "https://network-final-9729e.firebaseio.com",
-  projectId: "network-final-9729e",
-  storageBucket: "network-final-9729e.appspot.com",
-  messagingSenderId: "sender-id",
-  appID: "app-id",
-};
-*/
+import 'firebase/firestore';
 
 const FireBaseConfig = {
   apiKey: "AIzaSyBHv4G2wIZmpBx1ml_VZ05bvWpMdCyPCnE",
@@ -52,11 +41,25 @@ class App extends Component {
       }
       else  { console.log('did not sign in'); }
     });
-    _socket.on('allstreams', (data)=>{
-      console.log(data);
-      if(data) this.setState({allstreams: data});
-    });
-    _socket.emit('allstreams');
+    let db = firebase.firestore();
+    let observer = db.collection('StreamRooms')
+      .onSnapshot(querySnapshot => {
+        querySnapshot.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            console.log('New Room: ', change.doc.id);
+            let list = this.state.allstreams;
+            list.push(change.doc.id);
+            this.setState({ allstreams: list });
+          } else if (change.type === 'removed') {
+            console.log('Room Detatched: ', change.doc.id);
+            let list = this.state.allstreams;
+            const idx = list.indexOf(change.doc.id);
+            if (idx > -1)
+              list.splice(idx, 1);
+            this.setState({ allstreams: list });
+          }
+        });
+      });
   }
 
   ToggleChatRoom(){
