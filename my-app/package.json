@@ -23,8 +23,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "PORT=8000 react-scripts start",
-    "server": "GOOGLE_APPLICATION_CREDENTIALS='./testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json' PORT=8001 node server.js",
+    "start": "react-scripts start PORT=8000 ",
+    "server": "node server.js GOOGLE_APPLICATION_CREDENTIALS='./testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json' PORT=8001 ",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

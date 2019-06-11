@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 app.use( bodyParser.json() );
 app.use(bodyParser.urlencoded({
     extended: true
-})); 
+}));
 const http = require('http').Server(app);
 const io = require('socket.io')(http, {origins: "http://localhost:*", path: '/mysocket'});
 // Add the Firebase products that you want to use
@@ -17,10 +17,15 @@ const iv = crypto.scryptSync(buf.toString('hex'), 'salt', 16);
 const chokidar = require('chokidar');
 const watcher = chokidar.watch("public/hls/*.m3u8", { cwd: '.' });
 
+var serviceAccount = require("./node_modules/testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json");
 const firebaseConfig = {
   databaseURL: "https://testtest-67640.firebaseio.com",
-  credential: admin.credential.applicationDefault()
+  credential: admin.credential.cert(serviceAccount)
 };
+// const firebaseConfig = {
+//   databaseURL: "https://testtest-67640.firebaseio.com",
+//   credential: admin.credential.applicationDefault()
+// };
 
 // Initialize Firebase
 admin.initializeApp(firebaseConfig);
@@ -37,13 +42,16 @@ var ChatHistory = []; // Maintain chat History
 // When server start load chat history from firebase
 database.collection('ChatRoom').orderBy('date').get()
 .then(snapshot => {
+  var waitingQueue = [];
   snapshot.forEach(doc => {
-    // console.log(doc.id, '=>', doc.data());
-    ChatHistory.push({...doc.data(),chatID:doc.id});
+    var chatData = doc.data();
+    // console.log(doc.id, '=>', chatData);
+    ChatHistory.push({...chatData,chatID:doc.id});
     // Update users' name who has chat before
-    if(!UserNameMap[doc.data().owner]){
-      // FIXME: multiple query before first promise resolve
-      admin.auth().getUser(doc.data().owner)
+    if(!UserNameMap[chatData.owner] && waitingQueue.indexOf(chatData.owner) === -1){
+      waitingQueue.push(chatData.owner);
+
+      admin.auth().getUser(chatData.owner)
       .then(function(userRecord) {
         // See the UserRecord reference doc for the contents of userRecord.
         var userData = userRecord.toJSON();
@@ -52,6 +60,7 @@ database.collection('ChatRoom').orderBy('date').get()
       })
       .catch(function(error) {
         console.log('Error fetching user data:', error);
+        waitingQueue.slice(waitingQueue.indexOf(chatData.owner),1);
       });
     }
 
@@ -75,35 +84,19 @@ io.on('connection', (socket) => {
 
       // OPTIMIZE: using Promise to check if user displayName exist.
       console.log(data);
-      if(UserNameMap[data.owner]){  // User displayName can be foundd in name map
+      getUserName(data.owner).then(userName => {
         var response = {
-              ...data,
-              displayName: UserNameMap[data.owner],
-              chatID: ref.id
-            };
+          ...data,
+          displayName: userName,
+          chatID: ref.id
+        };
         socket.emit('chat',response);  // Send data to client
         ChatHistory.push(response);  // Record data in server
-      } else {  // User displayName can't be foundd in name map
-        admin.auth().getUser(data.owner)
-        .then(function(userRecord) {
-          // See the UserRecord reference doc for the contents of userRecord.
-          console.log('Successfully fetched user data');
-          var userData = userRecord.toJSON(),
-              response = {
-                ...data,
-                displayName: userData.displayName,
-                chatID: ref.id
-              };
-          socket.emit('chat',response);  // Send data to client
-          ChatHistory.push(response);  // Record data in server
-          UserNameMap[data.owner] = userData.displayName;  // Update user name map
-        })
-        .catch(function(error) {
-          console.log('Error fetching user data:', error);
-        });
-      }
-
+      });
     });
+  });
+  socket.on('get tok',uid => {
+    if(UserKeyMap[uid]) socket.emit('tok', UserKeyMap[uid]);
   });
   socket.on('tok', (data) => {
     crypto.randomBytes(64, (err, buf) => {
@@ -122,7 +115,7 @@ io.on('connection', (socket) => {
     UserNameMap[data.uid] = data.displayName;  // Update user name map
   });
   socket.on('allstreams', () => {
-    socket.emit('allstreams', watcher.getWatched()['public/hls']); 
+    socket.emit('allstreams', watcher.getWatched()['public/hls']);
   });
   socket.on('disconnect',()=>{});
 
@@ -170,8 +163,25 @@ app.post('/auth', function(req, res) {
   }
 });
 
+function getUserName(uid) {
+  return new Promise(function(resolve, reject) {
+    if(UserNameMap[uid]) resolve(UserNameMap[uid]);
+    else{
+      admin.auth().getUser(uid)
+      .then(function(userRecord) {
+        var userData = userRecord.toJSON();
+        UserNameMap[uid] = userData.displayName;  // Update user name map
+        resolve(userData.displayName);
+      })
+      .catch(function(error) {
+        console.log('Error fetching user data:', error);
+        reject();
+      });
+    }
+  });
+}
+
 const PORT = 8001 ;
 http.listen(process.env.PORT || PORT, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 });
-

@@ -26,6 +26,7 @@ body{
   flex:1;
   display: flex;
   align-items: center;
+  justify-content: center;
   height: calc(100vh - 20px);
   padding: 10px;
   box-shadow: none;
@@ -33,6 +34,11 @@ body{
 .PlayerContainer>div{
   box-shadow: 0px 0px 10px black;
   border: 5px solid white;
+  width: 100%;
+  height: 80%
+}
+.video-js{
+  width: 100%;height: 100%;
 }
 
 .ChatRoom{
@@ -184,14 +190,8 @@ body{
 .Setting button:hover{
   background: #659e28;
 }
-
-.modal {
-  margin: auto;
+.Setting textarea{
+  width: 100%;
+  height: 100px;
+  resize: none;
 }
-
-.streamkey {
-  word-break: break-all;
-  font-size: 10px;
-  margin: auto;
-}
-

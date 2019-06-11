@@ -20,7 +20,9 @@ class Token extends Component {
   }
 
   componentDidMount() {
+    this.props.socket.emit("get tok",this.props.user.uid);
     this.props.socket.on('tok', (data)=>{
+      console.log(data);
       this.setState({ isloading: false });
       this.setState({ open: true })
       this.setState({ CurrentKey: data })
@@ -56,38 +58,46 @@ class Token extends Component {
   render() {
     return (
       <div>
-        <Button
+        <div>
+          <span>User Token:</span>
+          <Button
           variant="primary"
           disabled={this.state.IsLoading}
           onClick={!this.state.IsLoading ? this.RequestToken : null}
           className='stbut'
-        >
-          {this.state.IsLoading ? 'Loading…' : 'New Stream Key'}
-        </Button>
-        <Button
-          variant="primary"
-          disabled={this.state.IsLoading}
-          onClick={!this.state.IsLoading ? this.ShowToken : null}
-          className='stbut'
-        >
-          {this.state.IsLoading ? 'Loading…' : 'Current Stream Key'}
-        </Button>
-        <Popup
-          className="popup"
-          open={this.state.open}
-          position="right center"
-          closeOnDocumentClick
-          onClose={this.closeModal}
-        >
-          <div className="modal">
-            <div className="streamkey">
-              {this.state.CurrentKey ? "Your Stream Key: " + this.state.CurrentKey : "You have not created any Stream Key yet!"} 
-            </div>
-          </div>
-        </Popup>
+          style={{fontSize:"12px"}}
+          >
+          {this.state.IsLoading ? 'Loading…' : 'New'}
+          </Button>
+        </div>
+        <div>
+          <textarea readOnly placeholder="click New to get stream key" value={this.state.CurrentKey?this.state.CurrentKey:""}/>
+        </div>
       </div>
     );
   }
 }
 
 export default Token;
+
+// <Button
+//   variant="primary"
+//   disabled={this.state.IsLoading}
+//   onClick={!this.state.IsLoading ? this.ShowToken : null}
+//   className='stbut'
+// >
+//   {this.state.IsLoading ? 'Loading…' : 'Current Stream Key'}
+// </Button>
+// <Popup
+//   className="popup"
+//   open={this.state.open}
+//   position="right center"
+//   closeOnDocumentClick
+//   onClose={this.closeModal}
+// >
+//   <div className="modal">
+//     <div className="streamkey">
+//       {this.state.CurrentKey ? "Your Stream Key: " + this.state.CurrentKey : "You have not created any Stream Key yet!"}
+//     </div>
+//   </div>
+// </Popup>

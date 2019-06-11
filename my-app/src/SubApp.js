@@ -69,7 +69,6 @@ class SubApp extends Component {
               <Link to='/login'>Login</Link>
             }
           </div>
-          <Token socket={this.props.socket} user={this.state.user} />
         </div>
         <div className="PlayerContainer" style={{left:this.state.showChatRoom?'0':'150px'}}>
           <VideoPlayer { ...this.GetVideoOption() }/>

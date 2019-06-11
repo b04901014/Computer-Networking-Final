@@ -53,7 +53,7 @@ class App extends Component {
       else  { console.log('did not sign in'); }
     });
     _socket.on('allstreams', (data)=>{
-      this.setState({allstreams: data});
+      if(data) this.setState({allstreams: data});
     });
     _socket.emit('allstreams');
   }
@@ -67,7 +67,7 @@ class App extends Component {
       <Router>
         <Switch>
           <Route path="/" exact render={() => <SubApp socket={_socket} firebase={firebase} /> } /> // Original App Component
-          <Route path="/setting" exact render={() => <Setting socket={_socket} firebase={firebase} user={this.state.user} /> } /> 
+          <Route path="/setting" exact render={() => <Setting socket={_socket} firebase={firebase} user={this.state.user} /> } />
           <Route path="/login" render={() => <Login firebase={firebase} user={this.state.user}/>} />
           {this.state.allstreams.map((x,i) =>{
             return(
