@@ -56,6 +56,7 @@ body{
   overflow-y: scroll;
   flex-direction: column;
   padding-top: 50px;
+  scroll-behavior: smooth;
 }
 .HistoryMessage::-webkit-scrollbar { width: 8px; }
 .HistoryMessage::-webkit-scrollbar-track {
@@ -169,6 +170,16 @@ body{
   padding: 3px;
   outline: 0;
 }
+.Login .inputArea{
+  display:flex;
+  flex-direction:column;
+}
+.Login .inputArea >div{
+  display:flex;
+  align-items: center;
+}
+.Login .inputArea >div span,
+.Login .inputArea >div input{flex:1}
 
 .Setting input{
   border: 0;

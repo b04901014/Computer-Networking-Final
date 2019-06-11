@@ -12,16 +12,23 @@ class ChatRoom extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  autoScroll(){
+    var target = document.querySelector(".Message:last-of-type");
+    if(target) target.scrollIntoView()
+  }
+
   componentDidMount(){
     this.props.socket.emit('chat history')
     this.props.socket.on('chat history',(data)=>{
       this.setState({msgList:data});
+      this.autoScroll();
     });
     this.props.socket.on('chat',(data)=>{
       var list = this.state.msgList;
       list.push(data);
       this.setState({msgList:list,message:""});
       document.querySelector(".SendingPanel input").value = "";
+      this.autoScroll();
     });
   }
   handleChange(e){

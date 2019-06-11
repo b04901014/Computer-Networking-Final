@@ -52,6 +52,9 @@ class LoginButton extends Component {
           if(errorCode === "auth/user-not-found"){
             alert("Not yet sign up!!");
           }
+          if(errorCode === "auth/wrong-password"){
+            alert("wrong password");
+          }
         });
       }
       else if(provider === 'signUp'){
@@ -92,32 +95,38 @@ class Login extends Component {
     super(props);
     this.state = {loginResult: {},signUp:false};
     this.UpdateState = this.UpdateState.bind(this);
+    this.handlekeypress = this.handlekeypress.bind(this);
   }
 
   UpdateState(state){
     this.setState({loginResult: state})
+  }
+  handlekeypress(e){
+    if(e.key === 'Enter'){
+      document.querySelectorAll(".login_box span")[1].click();
+    }
   }
 
   render(){
     var content = (
       <div>
         <h4>請選擇一種登入方式</h4>
-        <div style={{display:'flex',flexDirection:"column"}}>
+        <div className="inputArea">
           <div>
-            <span>Email: </span><input type="text"/>
+            <span>Email: </span><input type="text" onKeyPress={this.handlekeypress}/>
           </div>
           <div>
-            <span>password: </span><input type="password"/>
+            <span>password: </span><input type="password" onKeyPress={this.handlekeypress}/>
           </div>
-          <div style={{display:this.state.signUp?"block":"none"}}>
-            <span>re-Enter: </span><input type="password"/>
+          <div style={{display:this.state.signUp?"flex":"none"}}>
+            <span>re-Enter: </span><input type="password" onKeyPress={this.handlekeypress}/>
           </div>
         </div>
         <div className="login_box">
           <LoginButton content={<img src="./google.png" width="30px" alt="" />} firebase={this.props.firebase} socket={this.props.socket} provider="google" update={this.UpdateState}/>
           <LoginButton content={<i className="material-icons">person</i>} firebase={this.props.firebase} socket={this.props.socket} provider={this.state.signUp?"signUp":"email"} update={this.UpdateState}/>
         </div>
-        <div className="FunctionalText" onClick={()=>{this.setState({signUp:true});}}>Sign Up</div>
+        <div className="FunctionalText" onClick={()=>{this.setState({signUp:!this.state.signUp});}}>Sign {this.state.signUp?"In":"Up"}</div>
       </div>
     );
     if(this.props.user || this.state.loginResult.success) return <Redirect to="/" />

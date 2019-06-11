@@ -96,7 +96,15 @@ io.on('connection', (socket) => {
     });
   });
   socket.on('get tok',uid => {
-    if(UserKeyMap[uid]) socket.emit('tok', UserKeyMap[uid]);
+    if(UserKeyMap[uid]){
+      streamkey = UserKeyMap[uid];
+      console.log(streamkey);
+      const cipher = crypto.createCipheriv(algorithm, key, iv);
+      let encrypted = cipher.update(streamkey + uid, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+      console.log(encrypted);
+      socket.emit('tok', encrypted);
+    }
   });
   socket.on('tok', (data) => {
     crypto.randomBytes(64, (err, buf) => {
@@ -112,6 +120,7 @@ io.on('connection', (socket) => {
     });
   });
   socket.on('up_usrname', (data) => {
+    console.log(data);
     UserNameMap[data.uid] = data.displayName;  // Update user name map
   });
   socket.on('allstreams', () => {
