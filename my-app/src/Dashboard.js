@@ -5,15 +5,12 @@ import VideoPlayer from './player.js'
 import Token from './Token.js'
 import "videojs-resolution-switcher/lib/videojs-resolution-switcher.js"
 
-class SubApp extends Component {
+class Dashboard extends Component {
   constructor(props){
     super(props);
     this.state = {
-      showChatRoom: true,
       user:null
     }
-    this.ToggleChatRoom = this.ToggleChatRoom.bind(this);
-    this.GetVideoOption = this.GetVideoOption.bind(this);
   }
 
   componentDidMount(){
@@ -30,35 +27,11 @@ class SubApp extends Component {
     });
   }
 
-  ToggleChatRoom(){ this.setState({showChatRoom: !this.state.showChatRoom}); }
-
-  GetVideoOption() {
-    const videoJsOptions = {
-      autoplay: true,
-      controls: true,
-      liveui: true,
-      sources: [{
-        src: '/hls/' + this.props.name + '.m3u8',
-        type: 'application/x-mpegURL'
-      }],
-      plugins: {
-        videoJsResolutionSwitcher: {
-        default: 'low',
-        dynamicLabel: true
-        }
-      }
-    };
-    return videoJsOptions;
-  }
-
   render() {
+    console.log(this.props.allstreams);
     return (
       <div style={{display:'flex'}}>
         <div className="Navigation">
-          <Link to='/'> <i className="material-icons">home</i> </Link>
-          <div className="ToggleChatRoom" onClick={this.ToggleChatRoom}>
-            <i className="material-icons">forum</i>
-          </div>
           {
             this.state.user?
             <span style={{color: "white", fontSize: "20px", padding: "10px"}}>Hi, {this.state.user.displayName?this.state.user.displayName:""}</span>:
@@ -71,13 +44,18 @@ class SubApp extends Component {
             }
           </div>
         </div>
-        <div className="PlayerContainer" style={{left:this.state.showChatRoom?'0':'150px'}}>
-          <VideoPlayer { ...this.GetVideoOption() }/>
+        <div className="Dashboard">
+          {this.props.allstreams.map((x,i)=>{
+            return(
+              <Link className="card" key={i} to={'/'+x.id} style={{backgroundImage:`url("${x.cover}")`}}>
+                  <span>{x.id}</span>
+              </Link>
+            );
+          })}
         </div>
-        <ChatRoom style={{left:this.state.showChatRoom?'0':'300px'}} socket={this.props.socket} user={this.state.user} name={this.props.name} firebase={this.props.firebase} />
       </div>
     );
   }
 }
 
-export default SubApp;
+export default Dashboard;

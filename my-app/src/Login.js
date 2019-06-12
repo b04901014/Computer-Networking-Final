@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import { Redirect } from 'react-router';
-import 'firebase/firestore';
 
 class LoginButton extends Component {
   constructor(props) {
@@ -16,7 +15,8 @@ class LoginButton extends Component {
     var provider = this.props.provider;
     var email = document.querySelectorAll(".Login input")[0].value,
         password = document.querySelectorAll(".Login input")[1].value,
-        passwordCheck =  document.querySelectorAll(".Login input")[2].value;
+        passwordCheck =  document.querySelectorAll(".Login input")[2].value,
+        userName =  document.querySelectorAll(".Login input")[3].value;
 
     if(provider){
       if(provider === 'google'){
@@ -43,9 +43,15 @@ class LoginButton extends Component {
       }
       else if(provider === 'email'){
         firebase.auth().signInWithEmailAndPassword(email, password).then(()=>{
-          let db = this.props.firebase.firestore();
-          db.collection('Users').add(firebase.auth().currentUser.uid);
-          window.location.pathname = '/';
+          // console.log(firebase.auth().currentUser.uid);
+          // let db = firebase.firestore();
+          // db.collection('Users').doc(firebase.auth().currentUser.uid).set({
+          //   last_login: new Date().getTime()
+          // },{merge:true}).then(()=>{
+          //   alert("!!!")
+          //   this.setState({waiting:false});
+          // });
+          this.props.socket.emit("user login",firebase.auth().currentUser.uid);
         }).catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code;
@@ -66,9 +72,20 @@ class LoginButton extends Component {
           return;
         }
         firebase.auth().createUserWithEmailAndPassword(email, password).then(()=>{
-          let db = this.props.firebase.firestore();
-          db.collection('Users').add(firebase.auth().currentUser.uid);
-          window.location.pathname = '/';
+          // let db = firebase.firestore();
+          // db.collection('Users').doc(firebase.auth().currentUser.uid).set({
+          //   displayName:userName
+          // },{merge:true});
+          firebase.auth().currentUser.updateProfile({
+            displayName: userName
+          }).then(function() {
+            // Update successful.
+            // alert("Update success!");
+            this.props.socket.emit("user login",firebase.auth().currentUser.uid);
+          }).catch(function(error) {
+            // An error happened.
+            console.log(error);
+          });
         }).catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code;
@@ -125,6 +142,9 @@ class Login extends Component {
           </div>
           <div style={{display:this.state.signUp?"flex":"none"}}>
             <span>re-Enter: </span><input type="password" onKeyPress={this.handlekeypress}/>
+          </div>
+          <div style={{display:this.state.signUp?"flex":"none"}}>
+            <span>user name: </span><input type="text" onKeyPress={this.handlekeypress}/>
           </div>
         </div>
         <div className="login_box">

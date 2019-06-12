@@ -206,3 +206,44 @@ body{
   height: 100px;
   resize: none;
 }
+.Setting .Preview{
+  display: flex;
+  width: 240px;
+  height: 160px;
+  background-size: cover;
+}
+
+.Dashboard{
+  width: 100vw;
+  height: calc(100vh - 40px);
+  display: flex;
+  padding-top: 40px;
+  flex-wrap: wrap;
+}
+.Dashboard .card{
+  width: 240px;
+  height: 160px;
+  background-color: lightgray;
+  border: 3px solid white;
+  margin: 20px;
+  position: relative;
+  box-shadow: 0px 0px 10px black;
+  background-size: cover;
+}
+.Dashboard .card span{
+  width: calc(100% - 10px);
+  overflow: hidden;
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(0,0,0,.5);
+  padding: 0 5px;
+  justify-content: center;
+  color: white;
+  max-height: 0%;
+  transition: .3s ease-in-out;
+}
+.Dashboard .card:hover span{
+  max-height: 100%;
+  padding: 5px 5px;
+}

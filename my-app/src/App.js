@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import ChatRoom from './ChatRoom.js';
 import SubApp from './SubApp.js';
+import Dashboard from './Dashboard.js';
 import Setting from './Setting.js';
 import Login from './Login.js';
 import io from 'socket.io-client';
@@ -47,8 +48,14 @@ class App extends Component {
         querySnapshot.docChanges().forEach(change => {
           if (change.type === 'added') {
             console.log('New Room: ', change.doc.id);
-            let list = this.state.allstreams;
-            list.push(change.doc.id);
+            let list = this.state.allstreams,
+                cover = change.doc.data().cover_photo;
+            if(cover){
+              cover = cover.toUint8Array();
+              cover = window.URL.createObjectURL(new Blob([cover]));
+            }
+
+            list.push({id:change.doc.id,cover:cover});
             this.setState({ allstreams: list });
           } else if (change.type === 'removed') {
             console.log('Room Detatched: ', change.doc.id);
@@ -67,15 +74,16 @@ class App extends Component {
   }
 
   render(){
+    console.log(this.state.allstreams);
     return(
       <Router>
         <Switch>
-          <Route path="/" exact render={() => <SubApp socket={_socket} firebase={firebase} /> } /> // Original App Component
+          <Route path="/" exact render={() => <Dashboard socket={_socket} firebase={firebase} allstreams={this.state.allstreams}/> } />
           <Route path="/setting" exact render={() => <Setting socket={_socket} firebase={firebase} user={this.state.user} /> } />
-          <Route path="/login" render={() => <Login firebase={firebase} user={this.state.user}/>} />
+          <Route path="/login" render={() => <Login firebase={firebase} user={this.state.user} socket={_socket}/>} />
           {this.state.allstreams.map((x,i) =>{
             return(
-              <Route path={"/" + x.slice(0, -5)} key={i} render={() => <SubApp socket={_socket} firebase={firebase} name={x} /> } />
+              <Route path={"/" + x.id} key={i} render={() => <SubApp socket={_socket} firebase={firebase} name={x.id} /> } />
             );
           })}
         </Switch>

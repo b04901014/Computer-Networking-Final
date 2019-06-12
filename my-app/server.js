@@ -70,6 +70,37 @@ io.on('connection', (socket) => {
     console.log(data);
     UserNameMap[data.uid] = data.displayName;  // Update user name map
   });
+  socket.on("user login",uid => {
+    database.collection("Users").doc(uid).set({
+      last_login:new Date().getTime()
+    },{merge:true});
+  });
+  socket.on("save cover photo",data => {
+    console.log(data);
+    // const Blob = admin.firestore.Blob.fromUint8Array(data.photo);
+    database.collection("Users").doc(data.uid).set({
+      cover_photo: data.photo
+    },{merge:true});
+  });
+  socket.on("get cover photo",uid => {
+    database.collection("Users").doc(uid).get().then(doc => {
+      if(doc.exists){
+        socket.emit("get cover photo",doc.data().cover_photo);
+      }
+    });
+  });
+  socket.on("attach stream room",data => {
+    console.log(data);
+    database.collection("Users").doc(data.uid).get().then(doc => {
+      if(doc.exists){
+        database.collection("StreamRooms").doc(data.name).set({
+          owner: data.uid,
+          cover_photo: doc.data().cover_photo
+        },{merge: true})
+      }
+    });
+  });
+
   socket.on('allstreams', () => {
     socket.emit('allstreams', watcher.getWatched()['public/hls']);
   });
