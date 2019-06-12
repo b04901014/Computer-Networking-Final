@@ -53,7 +53,7 @@ class SubApp extends Component {
 
   render() {
     return (
-      <div style={{display:'flex'}}>
+      <div style={{display:'flex',backgroundImage:`url("${this.props.bg}")`}}>
         <div className="Navigation">
           <Link to='/'> <i className="material-icons">home</i> </Link>
           <div className="ToggleChatRoom" onClick={this.ToggleChatRoom}>

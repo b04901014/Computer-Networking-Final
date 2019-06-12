@@ -73,7 +73,7 @@ class ChatRoom extends Component {
         user = this.props.user;
         */
     if(!this.state.message) return;
-    if(!this.props.user){alert("Login to use this function!!!");return;}
+    if(!this.props.user){alert("Login to use this function!!!");e.preventDefault();return false;}
 
     let db = this.props.firebase.firestore();
     let data = {

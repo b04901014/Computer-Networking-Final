@@ -10,6 +10,7 @@ class Setting extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
   componentDidMount(){
+    if(!this.props.user) return;
     this.props.socket.emit("get cover photo",this.props.user.uid);
     this.props.socket.on("get cover photo",photo => {
       console.log(photo);
@@ -21,32 +22,16 @@ class Setting extends Component {
     });
   }
   setUserdata(){
-    var userName = document.querySelectorAll(".Setting input")[0].value,
-        coverphoto = document.querySelectorAll(".Setting input")[2].files[0],
-        streamRoom = document.querySelectorAll(".Setting input")[1].value;
-        console.log(streamRoom);
-    if(userName){
-      this.props.user.updateProfile({
-        displayName: userName
-      }).then(function() {
-        // Update successful.
-        alert("Update success!");
-      }).catch(function(error) {
-        // An error happened.
-        console.log(error);
-      });
-    }
+    var coverphoto = document.querySelectorAll(".Setting input")[1].files[0],
+        live_on = document.querySelectorAll(".Setting input")[0].checked;
+        console.log(live_on);
+    this.props.socket.emit("turn live",{uid:this.props.user.uid,live:live_on});
     if(coverphoto){
       this.props.socket.emit("save cover photo",{
         uid:this.props.user.uid,
         photo: coverphoto
       });
-    }
-    if(streamRoom){
-      this.props.socket.emit("attach stream room",{
-        uid:this.props.user.uid,
-        name: streamRoom
-      });
+      this.props.socket.on("save cover photo",result=>{if(result)alert("photo save success");else alert("photo save success");})
     }
   }
   logout(){
@@ -67,19 +52,15 @@ class Setting extends Component {
   render(){
     if(!this.props.user) return <Redirect to="/" />;
     var user = this.props.user;
+    if(!user) return <Redirect to='/' />;
      return(
       <div className="Setting">
         <div>
           <div>
-            <span>User Name:</span>
-            <input defaultValue={user.displayName} placeholder="set up the user name"/>
+            <span>live on: </span><input type='checkbox'/>
           </div>
           <div>
             <Token socket={this.props.socket} user={user} />
-          </div>
-          <div>
-          <span>attach stream room:</span>
-            <input placeholder="key in stream room name"/>
           </div>
           <div>
             <span>cover photo</span>

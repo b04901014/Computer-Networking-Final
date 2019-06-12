@@ -4,6 +4,9 @@ import { Redirect } from 'react-router';
 class LoginButton extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      waiting: false
+    }
     this.loginFunction = this.loginFunction.bind(this);
   }
 
@@ -43,15 +46,7 @@ class LoginButton extends Component {
       }
       else if(provider === 'email'){
         firebase.auth().signInWithEmailAndPassword(email, password).then(()=>{
-          // console.log(firebase.auth().currentUser.uid);
-          // let db = firebase.firestore();
-          // db.collection('Users').doc(firebase.auth().currentUser.uid).set({
-          //   last_login: new Date().getTime()
-          // },{merge:true}).then(()=>{
-          //   alert("!!!")
-          //   this.setState({waiting:false});
-          // });
-          this.props.socket.emit("user login",firebase.auth().currentUser.uid);
+          window.location.pathname = '/';
         }).catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code;
@@ -64,6 +59,7 @@ class LoginButton extends Component {
           if(errorCode === "auth/wrong-password"){
             alert("wrong password");
           }
+          window.location.pathname = '/';
         });
       }
       else if(provider === 'signUp'){
@@ -71,31 +67,48 @@ class LoginButton extends Component {
           alert("Password not match!");
           return;
         }
-        firebase.auth().createUserWithEmailAndPassword(email, password).then(()=>{
-          // let db = firebase.firestore();
-          // db.collection('Users').doc(firebase.auth().currentUser.uid).set({
-          //   displayName:userName
-          // },{merge:true});
-          firebase.auth().currentUser.updateProfile({
-            displayName: userName
-          }).then(function() {
-            // Update successful.
-            // alert("Update success!");
-            this.props.socket.emit("user login",firebase.auth().currentUser.uid);
-          }).catch(function(error) {
-            // An error happened.
-            console.log(error);
-          });
-        }).catch(function(error) {
-          // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          // ...
-          console.log(error);
-          if(errorCode === "auth/weak-password"){
-            alert(errorMessage);
+        this.setState({waiting:true});
+        this.props.socket.emit("check user name",userName);
+        this.props.socket.on("check user name",result => {
+          if(result){
+            firebase.auth().createUserWithEmailAndPassword(email, password).then(()=>{
+                let db = firebase.firestore();
+                db.collection('Users').doc(firebase.auth().currentUser.uid).set({
+                  first_login: new Date().getTime(),
+                  user_name: userName
+                },{merge:true}).then(()=>{
+                  this.setState({waiting:false});
+                }).catch(function(e) {console.log(e);});
+                firebase.auth().currentUser.updateProfile({
+                  displayName: userName
+                }).then(() => {
+                  // Update successful.
+                  setTimeout(()=>{
+                    window.location.pathname = '/';
+                  },1000);
+                }).catch(function(error) {
+                  // An error happened.
+                  console.log(error);
+                });
+              }).catch(function(error) {
+              // Handle Errors here.
+              var errorCode = error.code;
+              var errorMessage = error.message;
+              // ...
+              console.log(error);
+              if(errorCode === "auth/weak-password"){
+                alert(errorMessage);
+              }
+              else if(errorCode === "auth/email-already-in-use"){
+                alert("email already in use");
+              }
+            });
+          } else {
+            alert("User name exist!")
           }
+
         });
+
       }
       else alert("未知錯誤，請重新整理");
 
@@ -154,40 +167,6 @@ class Login extends Component {
         <div className="FunctionalText" onClick={()=>{this.setState({signUp:!this.state.signUp});}}>Sign {this.state.signUp?"In":"Up"}</div>
       </div>
     );
-    if(this.props.user || this.state.loginResult.success) return <Redirect to="/" />
-    else if(this.state.loginResult.success === false){
-      if(this.state.loginResult.error === "auth/popup-closed-by-user"){}
-      else if(this.state.loginResult.error === "auth/web-storage-unsupported"){
-        content = (
-          <div>
-          <h4>登入錯誤</h4>
-          <div className="login_box">
-            瀏覽器禁用了第三方cookie，請從設定中啟用第三方cookie<br/>
-            若為Chrome瀏覽器，複製以下連結，並在網址列貼上以前往設定<br/>
-            <span>chrome://settings/content/cookies</span>
-          </div>
-        </div>
-        );
-      }
-      else if(this.state.loginResult.error === "auth/network-request-failed"){
-        content = (
-          <div>
-          <h4>網路錯誤請重新整理再嘗試</h4>
-        </div>
-        );
-      }
-      else if(this.state.loginResult.error === "auth/popup-blocked"){
-        content = (
-          <div>
-            <h4>登入錯誤</h4>
-            <div className="login_box flex">
-              瀏覽器阻擋了彈出視窗，請允許彈出視窗後重新整理
-            </div>
-          </div>
-        );
-      }
-    }
-
     return(
       <div className="Login">
         {content}

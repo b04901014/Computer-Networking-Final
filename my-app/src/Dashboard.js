@@ -9,7 +9,8 @@ class Dashboard extends Component {
   constructor(props){
     super(props);
     this.state = {
-      user:null
+      user:null,
+      roomList:[]
     }
   }
 
@@ -28,7 +29,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    console.log(this.props.allstreams);
+    console.log(this.props.roomList);
     return (
       <div style={{display:'flex'}}>
         <div className="Navigation">
@@ -45,10 +46,11 @@ class Dashboard extends Component {
           </div>
         </div>
         <div className="Dashboard">
-          {this.props.allstreams.map((x,i)=>{
+          {this.props.roomList.map((x,i)=>{
             return(
               <Link className="card" key={i} to={'/'+x.id} style={{backgroundImage:`url("${x.cover}")`}}>
-                  <span>{x.id}</span>
+                  {x.streaming?<span>live</span>:null}
+                  <div>{x.id}</div>
               </Link>
             );
           })}

@@ -69,6 +69,11 @@ class Token extends Component {
           >
           {this.state.IsLoading ? 'Loading…' : 'New'}
           </Button>
+          <Button style={{fontSize:"12px"}} onClick={e => {
+            document.querySelector("textarea").select();
+            if(document.execCommand("copy")) alert("copy to clipboard");
+            else alert("fail to copy");
+          }}>copy</Button>
         </div>
         <div>
           <textarea readOnly placeholder="click New to get stream key" value={this.state.CurrentKey?this.state.CurrentKey:""}/>

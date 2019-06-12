@@ -27,7 +27,7 @@ class App extends Component {
     super(props);
     this.state = {
       showChatRoom: true,
-      allstreams: [],
+      roomList: [],
       user: null
     }
     this.ToggleChatRoom = this.ToggleChatRoom.bind(this);
@@ -43,30 +43,37 @@ class App extends Component {
       else  { console.log('did not sign in'); }
     });
     let db = firebase.firestore();
-    let observer = db.collection('StreamRooms')
-      .onSnapshot(querySnapshot => {
-        querySnapshot.docChanges().forEach(change => {
-          if (change.type === 'added') {
-            console.log('New Room: ', change.doc.id);
-            let list = this.state.allstreams,
-                cover = change.doc.data().cover_photo;
-            if(cover){
-              cover = cover.toUint8Array();
-              cover = window.URL.createObjectURL(new Blob([cover]));
+    let observer = db.collection('Users')
+        .onSnapshot(querySnapshot => {
+          querySnapshot.docChanges().forEach(change => {
+            if (change.type === 'added' || change.type === 'modified') {
+              console.log('New data', change.doc.data());
+              let list = this.state.roomList,
+                  cover = change.doc.data().cover_photo;
+              if(cover){
+                cover = cover.toUint8Array();
+                cover = window.URL.createObjectURL(new Blob([cover]));
+              };
+              var pos = list.indexOf(list.find((x,i,a)=>{return x.id === change.doc.data().user_name}));
+              if(pos !== -1){ list.splice(pos,1); }
+              list.push({id:change.doc.data().user_name,streaming:change.doc.data().streaming,cover:cover});
+              this.setState({ roomList: list });
+            } else if (change.type === 'removed') {
+              let allmsgs = db.collection('Users').get()
+                .then(snapshot => {
+                  var list = [];
+                  snapshot.forEach(doc => {
+                    list.push(doc.data());
+                  })
+                  this.setState({ roomList: list});
+                  console.log('Removed: ', change.doc.data());
+                })
+                .catch(err => {
+                  console.log('Error getting documents', err);
+                });
             }
-
-            list.push({id:change.doc.id,cover:cover});
-            this.setState({ allstreams: list });
-          } else if (change.type === 'removed') {
-            console.log('Room Detatched: ', change.doc.id);
-            let list = this.state.allstreams;
-            const idx = list.indexOf(change.doc.id);
-            if (idx > -1)
-              list.splice(idx, 1);
-            this.setState({ allstreams: list });
-          }
+          });
         });
-      });
   }
 
   ToggleChatRoom(){
@@ -74,16 +81,15 @@ class App extends Component {
   }
 
   render(){
-    console.log(this.state.allstreams);
     return(
       <Router>
         <Switch>
-          <Route path="/" exact render={() => <Dashboard socket={_socket} firebase={firebase} allstreams={this.state.allstreams}/> } />
+          <Route path="/" exact render={() => <Dashboard socket={_socket} firebase={firebase} roomList={this.state.roomList}/> } />
           <Route path="/setting" exact render={() => <Setting socket={_socket} firebase={firebase} user={this.state.user} /> } />
           <Route path="/login" render={() => <Login firebase={firebase} user={this.state.user} socket={_socket}/>} />
-          {this.state.allstreams.map((x,i) =>{
+          {this.state.roomList.map((x,i) =>{
             return(
-              <Route path={"/" + x.id} key={i} render={() => <SubApp socket={_socket} firebase={firebase} name={x.id} /> } />
+              <Route path={"/" + x.id} key={i} render={() => <SubApp socket={_socket} firebase={firebase} name={x.id} bg={x.cover} />} />
             );
           })}
         </Switch>
