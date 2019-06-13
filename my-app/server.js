@@ -6,7 +6,8 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 const http = require('http').Server(app);
-const io = require('socket.io')(http, {origin:["http://localhost:*","http://*.ngrok.io"],path: '/mysocket'});
+const io = require('socket.io')(http, {path: '/mysocket'});
+io.origins(['http://localhost:8000', 'dalolicorn.duckdns.org:8000']);
 // Add the Firebase products that you want to use
 const admin = require("firebase-admin");
 require("firebase/firestore");
@@ -18,10 +19,9 @@ const iv = crypto.scryptSync(buf.toString('hex'), 'salt', 16);
 const chokidar = require('chokidar');
 const watcher = chokidar.watch("public/hls/*.m3u8", { cwd: '.' });
 
-var serviceAccount = require("./node_modules/testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json");
 const firebaseConfig = {
   databaseURL: "https://testtest-67640.firebaseio.com",
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.applicationDefault()
 };
 
 // Initialize Firebase
@@ -100,11 +100,11 @@ io.on('connection', (socket) => {
   socket.on("check user name",userName => {
     socket.emit("check user name",UserNameMap.indexOf(userName) === -1);
   });
-  socket.on("turn live",data => {
+  /*  socket.on("turn live",data => {
     database.collection("Users").doc(data.uid).set({
       streaming:data.live
     },{merge:true});
-  });
+  });*/
 
 
   socket.on('disconnect',()=>{});
@@ -113,13 +113,40 @@ io.on('connection', (socket) => {
   watcher
     .on('add', (file) => {
       let name = path.basename(file).split(".")[0];
-      console.log('add!',name);
+      console.log('add!', file);
       database.collection('StreamRooms').doc(name).set({}, {merge: true});
+      if (file.slice(-4) === 'm3u8') {
+        database.collection("Users").where("user_name", "==", name).limit(1).get()
+          .then( (snapshot) => {
+            if (snapshot.empty) {
+              console.log('No matching documents.');
+              return;
+            }  
+            snapshot.forEach(doc => {
+              doc.ref.set({
+                streaming: true
+                },{merge: true});
+            });
+          });
+      }
     })
     .on('unlink', (file) => {
       let name = path.basename(file).split(".")[0];
-      console.log('unlink!',name);
-      //Do something?
+      console.log('unlink!', file);
+      if (file.slice(-4) === 'm3u8') {
+        database.collection("Users").where("user_name", "==", name).limit(1).get()
+          .then( (snapshot) => {
+            if (snapshot.empty) {
+              console.log('No matching documents.');
+              return;
+            }  
+            snapshot.forEach(doc => {
+              doc.ref.set({
+                streaming: false
+                },{merge: true});
+            });
+          });
+      }
     });
 });
 

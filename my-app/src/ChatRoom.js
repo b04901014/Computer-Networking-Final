@@ -29,6 +29,7 @@ class ChatRoom extends Component {
               let list = this.state.msgList;
               list.push(change.doc.data());
               this.setState({ msgList: list });
+              this.msgend.scrollIntoView({ behavior: "auto" });
             } else if (change.type === 'removed') {
               let allmsgs = db.collection('StreamRooms').doc(this.props.name).collection('Messages').get()
                 .then(snapshot => {

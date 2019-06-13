@@ -34,26 +34,27 @@ class SubApp extends Component {
 
   GetVideoOption() {
     const videoJsOptions = {
-      autoplay: true,
+      name: "Player",
+      //      autoplay: true,
       controls: true,
       liveui: true,
-      sources: [{
-        src: '/hls/' + this.props.name + '.m3u8',
-        type: 'application/x-mpegURL'
-      }],
-      plugins: {
+      //     sources: [{
+      src: '/hls/' + this.props.name + '.m3u8',
+      type: 'application/x-mpegURL',
+      //      }],
+      /*      plugins: {
         videoJsResolutionSwitcher: {
         default: 'low',
         dynamicLabel: true
         }
-      }
+      }*/
     };
     return videoJsOptions;
   }
 
   render() {
     return (
-      <div style={{display:'flex',backgroundImage:`url("${this.props.bg}")`}}>
+      <div style={{display:'flex', backgroundImage:`url("${this.props.bg}")`, backgroundSize:"cover"}}>
         <div className="Navigation">
           <Link to='/'> <i className="material-icons">home</i> </Link>
           <div className="ToggleChatRoom" onClick={this.ToggleChatRoom}>

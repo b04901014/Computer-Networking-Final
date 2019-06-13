@@ -22,10 +22,10 @@ class Setting extends Component {
     });
   }
   setUserdata(){
-    var coverphoto = document.querySelectorAll(".Setting input")[1].files[0],
-        live_on = document.querySelectorAll(".Setting input")[0].checked;
-        console.log(live_on);
-    this.props.socket.emit("turn live",{uid:this.props.user.uid,live:live_on});
+    var coverphoto = document.querySelectorAll(".Setting input")[1].files[0];
+      //        live_on = document.querySelectorAll(".Setting input")[0].checked;
+      //    console.log(live_on);
+    //    this.props.socket.emit("turn live",{uid:this.props.user.uid,live:live_on});
     if(coverphoto){
       this.props.socket.emit("save cover photo",{
         uid:this.props.user.uid,
@@ -48,7 +48,11 @@ class Setting extends Component {
     console.log(objectURL);
     this.preview.style.backgroundImage = `url("${objectURL}")`
   }
-
+    /*
+          <div>
+            <span>live on: </span><input type='checkbox'/>
+          </div>
+          */
   render(){
     if(!this.props.user) return <Redirect to="/" />;
     var user = this.props.user;
@@ -56,9 +60,6 @@ class Setting extends Component {
      return(
       <div className="Setting">
         <div>
-          <div>
-            <span>live on: </span><input type='checkbox'/>
-          </div>
           <div>
             <Token socket={this.props.socket} user={user} />
           </div>

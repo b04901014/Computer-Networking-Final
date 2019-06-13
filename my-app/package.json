@@ -19,12 +19,13 @@
     "reactjs-popup": "^1.4.1",
     "socket.io": "^2.2.0",
     "video.js": "^7.5.4",
+    "videojs-contrib-quality-levels": "^2.0.9",
     "videojs-resolution-switcher": "^0.4.2"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "react-scripts start PORT=8000 ",
-    "server": "node server.js GOOGLE_APPLICATION_CREDENTIALS='./testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json' PORT=8001 ",
+    "start": "PORT=8000 react-scripts start",
+    "server": "GOOGLE_APPLICATION_CREDENTIALS='./testtest-67640-firebase-adminsdk-rnvx2-15ab922c2e.json' PORT=8001 node server.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

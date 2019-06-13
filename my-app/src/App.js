@@ -6,7 +6,7 @@ import Dashboard from './Dashboard.js';
 import Setting from './Setting.js';
 import Login from './Login.js';
 import io from 'socket.io-client';
-const _socket = io.connect('http://localhost:8001', { path: '/mysocket' });
+const _socket = io.connect('dalolicorn.duckdns.org:8001', { path: '/mysocket' });
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
